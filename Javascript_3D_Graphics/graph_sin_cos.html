@@ -1,0 +1,229 @@
+<html>
+<title>No WebGL! Native JS 3D Graphics!</title>
+<head>
+    <script type="text/javascript" src="./native3d.js"></script>
+    <style>
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+            width: 800;
+        }
+    </style>
+</head>
+<body>
+<script>
+    var scene;
+    var pageLoaded = false;
+    var spatialFigureArray = [];
+    var mouseContext = {
+        mouseX: 0,
+        mouseY: 0,
+        leftPressed: 0,
+        rightPressed: 0
+    };
+
+    var makeSpatialFigure = function(){
+        var figureArray = [];
+        var index = 0;
+        for (var i = 1; i <= 100; i++) {
+            for (var id = 1; id <= 100; id++) {
+                figureArray[index] = {
+                    x: id * 17,
+                    z: i * 17,
+                    y: Math.round(100 * Math.cos((i - 50) * 4 / 50) * Math.sin((id - 50) * 4 / 50))
+                };
+
+                index++;
+            }
+        }
+
+        spatialFigureArray = figureArray;
+        return figureArray;
+    }
+
+    var drawSpatialFigure = function (figure, color) {
+        scene.startPixelsCapture();
+        for (var i = 0; i < figure.length; i++)
+            scene.put3DPixel(figure[i].x, figure[i].y, figure[i].z, color, true);
+
+        scene.showCapturedPixels();
+    };
+
+    var drawScene = function () {
+        if (!pageLoaded) return;
+        scene.clearScreen();
+        scene.makeWorldSystem();
+        scene.showCameraPosition();
+        drawSpatialFigure(spatialFigureArray, "blue");
+    };
+
+    var processMouseWheel = function (e) {
+        var evt = window.event || e; //equalize event object
+        var delta = evt.detail ? evt.detail * (-120) : evt.wheelDelta;
+
+        scene.camera.zoom += delta;
+        drawScene();
+    }
+
+    var processMouseMove = function (event) {
+        if (!mouseContext.leftPressed && !mouseContext.rightPressed) return;
+
+        var diffX = (mouseContext.mouseX == 0 ? event.pageX : mouseContext.mouseX) - event.pageX;
+        var diffY = (mouseContext.mouseY == 0 ? event.pageY : mouseContext.mouseY) - event.pageY;
+
+        mouseContext.mouseX = event.pageX;
+        mouseContext.mouseY = event.pageY;
+
+        var cam = scene.camera;
+
+        if (mouseContext.leftPressed) {
+            cam.angleY -= diffX * Math.PI / 180 / 10;
+            cam.angleX += diffY * Math.PI / 180 / 10;
+        }
+
+        if (mouseContext.rightPressed) {
+            var step = Math.abs(diffX);
+            if (diffX > 0) {
+                scene.camera.x += step * Math.cos(scene.camera.angleY);
+                scene.camera.z -= step * Math.sin(scene.camera.angleY);
+            } else {
+                scene.camera.x -= step * Math.cos(scene.camera.angleY);
+                scene.camera.z += step * Math.sin(scene.camera.angleY);
+            }
+
+            step = Math.abs(diffY);
+            if (diffY < 0) {
+                scene.camera.z += step * Math.cos(scene.camera.angleY);
+                scene.camera.x += step * Math.sin(scene.camera.angleY);
+            } else {
+                scene.camera.z -= step * Math.cos(scene.camera.angleY);
+                scene.camera.x -= step * Math.sin(scene.camera.angleY);
+            }
+        }
+
+        drawScene();
+    };
+
+    var processKeyDown = function (event) {
+        var step = 5;
+
+        // w
+        if (event.keyCode == 87) {
+            scene.camera.z += step * Math.cos(scene.camera.angleY);
+            scene.camera.x += step * Math.sin(scene.camera.angleY);
+            drawScene();
+        }
+        // s
+        else if (event.keyCode == 83) {
+            scene.camera.z -= step * Math.cos(scene.camera.angleY);
+            scene.camera.x -= step * Math.sin(scene.camera.angleY);
+            drawScene();
+        }
+        // d
+        else if (event.keyCode == 68) {
+            scene.camera.x += step * Math.cos(scene.camera.angleY);
+            scene.camera.z -= step * Math.sin(scene.camera.angleY);
+            drawScene();
+        }
+        // a
+        else if (event.keyCode == 65) {
+            scene.camera.x -= step * Math.cos(scene.camera.angleY);
+            scene.camera.z += step * Math.sin(scene.camera.angleY);
+            drawScene();
+        }
+        // e
+        else if (event.keyCode == 69) {
+            scene.camera.y += 10;
+            drawScene();
+        }
+        // q
+        else if (event.keyCode == 81) {
+            scene.camera.y -= 10;
+            drawScene();
+        }
+        //z
+        else if (event.keyCode == 88) {
+            scene.camera.zoom += 10;
+            drawScene();
+        }
+        // x
+        else if (event.keyCode == 90) {
+            scene.camera.zoom -= 10;
+            drawScene();
+        }
+    };
+
+    var registerMouseWheelEvent = function () {
+        var mouseWheel = (/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll" : "mousewheel";
+
+        if (document.attachEvent) //if IE (and Opera depending on user setting)
+            document.attachEvent("on" + mouseWheel, processMouseWheel);
+        else if (document.addEventListener) //WC3 browsers
+            document.addEventListener(mouseWheel, processMouseWheel, false);
+    };
+
+    var registerKeyDownEvent = function () {
+        document.addEventListener('keydown', processKeyDown);
+    };
+
+    var registerMouseMoveEvent = function () {
+        document.addEventListener("mousemove", processMouseMove);
+    };
+
+    var registerMouseDownEvent = function () {
+        document.addEventListener("mousedown", function (event) {
+            if (event.button == 0) mouseContext.leftPressed = true;
+            if (event.button == 2) mouseContext.rightPressed = true;
+
+            mouseContext.mouseX = 0;
+            mouseContext.mouseY = 0;
+        });
+    };
+
+    var registerMouseUpEvent = function () {
+        document.addEventListener("mouseup", function () {
+            mouseContext.leftPressed = false;
+            mouseContext.rightPressed = false;
+        });
+    };
+
+    var hideContextMenu = function (canvas) {
+        canvas.oncontextmenu = function (e) {
+            e.preventDefault();
+        };
+    };
+
+    var registerOnLoadEvent = function () {
+        window.onload = function () {
+            scene = initialize3DScene("myCanvas");
+            var canvas = document.getElementById("myCanvas");
+            hideContextMenu(canvas);
+
+            var cam = scene.camera;
+            cam.angleX = -41.1 * Math.PI / 180;
+            cam.angleY = 32.3 * Math.PI / 180;
+            cam.x = 624.8;
+            cam.z = 263.1;
+            cam.zoom = -1120;
+
+            pageLoaded = true;
+            drawScene();
+        };
+    };
+
+    makeSpatialFigure();
+    registerOnLoadEvent();
+    registerKeyDownEvent();
+    registerMouseDownEvent();
+    registerMouseUpEvent();
+    registerMouseWheelEvent();
+    registerMouseMoveEvent();
+</script>
+
+<div class="center">
+    <canvas id="myCanvas" width="800" height="600"
+            style="border:1px solid #000000;">
+    </canvas>
+</div>
+</body>
+</html>
