@@ -1,122 +1,191 @@
 <html>
-	<title>Native JS 3D Graphics! No WebGL!</title>
-	<head>
-		<script type="text/javascript" src="./native3d.js"></script>
-		<style>
-			.center {
-				margin-left: auto;
-				margin-right: auto;
-				width: 640;
-			}
-		</style>
-	</head>
-	<body>
-		<script>
-			var scene;
-			var mouseX = 0;
-			var mouseY = 0;
-			var pressed = false;
-			
-			function drawScene() {
-				scene.clearScreen();
-				scene.put3DPixel(1, 1, 15, "green");
-				scene.makeWorldSystem();
-			}
-			
-			window.onload = function(){
-				scene = initialize3DScene("myCanvas");
+<title>Native JS 3D Graphics! No WebGL!</title>
+<head>
+    <script type="text/javascript" src="./native3d.js"></script>
+    <style>
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+            width: 800;
+        }
+    </style>
+</head>
+<body>
+<script>
+    var scene;
+    var pageLoaded = false;
+    var mouseContext = {
+        mouseX: 0,
+        mouseY: 0,
+        leftPressed: 0,
+        rightPressed: 0
+    };
 
-				var cam = scene.camera;
-				cam.angleX = -0.4049163864626849;
-				cam.angleY = 0.9005898940290745;
-				cam.d = 240;
+    var drawScene = function () {
+        if (!pageLoaded) return;
+        scene.clearScreen();
+        scene.put3DPixel(1, 1, 15, "green");
+        scene.makeWorldSystem();
+        scene.showCameraPosition();
+    };
 
-				drawScene();
-			}
+    var processMouseWheel = function (e) {
+        var evt = window.event || e; //equalize event object
+        var delta = evt.detail ? evt.detail * (-120) : evt.wheelDelta;
 
-			document.addEventListener("mousedown", function(event) {
-				pressed = true;
-				mouseX = 0;
-				mouseY = 0;
-			});
+        scene.camera.zoom += delta;
+        drawScene();
+    }
 
-			document.addEventListener("mouseup", function(event) {
-				pressed = false;
-			});
+    var processMouseMove = function (event) {
+        if (!mouseContext.leftPressed && !mouseContext.rightPressed) return;
 
-			document.addEventListener("mousemove", function(event) {
-				if (!pressed) return;
+        var diffX = (mouseContext.mouseX == 0 ? event.pageX : mouseContext.mouseX) - event.pageX;
+        var diffY = (mouseContext.mouseY == 0 ? event.pageY : mouseContext.mouseY) - event.pageY;
 
-				var diffX = (mouseX == 0 ? event.pageX : mouseX) - event.pageX;
-				var diffY = (mouseY == 0 ? event.pageY : mouseY) - event.pageY;
+        mouseContext.mouseX = event.pageX;
+        mouseContext.mouseY = event.pageY;
 
-				mouseX = event.pageX;
-				mouseY = event.pageY;
+        var cam = scene.camera;
 
-				var cam = scene.camera;
+        if (mouseContext.leftPressed) {
+            cam.angleY -= diffX * Math.PI / 180 / 10;
+            cam.angleX += diffY * Math.PI / 180 / 10;
+        }
 
-				cam.angleY -= diffX * Math.PI / 180 / 10;
-				cam.angleX += diffY * Math.PI / 180 / 10;
+        if (mouseContext.rightPressed) {
+            var step = Math.abs(diffX);
+            if (diffX > 0) {
+                scene.camera.x += step * Math.cos(scene.camera.angleY);
+                scene.camera.z -= step * Math.sin(scene.camera.angleY);
+            } else {
+                scene.camera.x -= step * Math.cos(scene.camera.angleY);
+                scene.camera.z += step * Math.sin(scene.camera.angleY);
+            }
 
-				//console.log(cam.angleX, cam.angleY, cam.angleZ, cam.x, cam.y, cam.z, cam.d);
+            step = Math.abs(diffY);
+            if (diffY < 0) {
+                scene.camera.z += step * Math.cos(scene.camera.angleY);
+                scene.camera.x += step * Math.sin(scene.camera.angleY);
+            } else {
+                scene.camera.z -= step * Math.cos(scene.camera.angleY);
+                scene.camera.x -= step * Math.sin(scene.camera.angleY);
+            }
+        }
 
-				drawScene();
-			});
-			
-			document.addEventListener('keydown', function(event) {
-				var step = 5;
+        drawScene();
+    };
 
-				// w
-				if(event.keyCode == 87) {
-					scene.camera.z += step * Math.cos(scene.camera.angleY);
-					scene.camera.x += step * Math.sin(scene.camera.angleY);
-					drawScene();
-				}
-				// s
-				else if(event.keyCode == 83) {
-					scene.camera.z -= step * Math.cos(scene.camera.angleY);
-					scene.camera.x -= step * Math.sin(scene.camera.angleY);
-					drawScene();
-				}
-				// d
-				else if(event.keyCode == 68) {
-					scene.camera.x += step * Math.cos(scene.camera.angleY);
-					scene.camera.z -= step * Math.sin(scene.camera.angleY);
-					drawScene();
-				}
-				// a
-				else if(event.keyCode == 65) {
-					scene.camera.x -= step * Math.cos(scene.camera.angleY);
-					scene.camera.z += step * Math.sin(scene.camera.angleY);
-					drawScene();
-				}
-				// e
-				else if(event.keyCode == 69) {
-					scene.camera.y += 10;
-					drawScene();
-				}
-				// q
-				else if(event.keyCode == 81) {
-					scene.camera.y -= 10;
-					drawScene();
-				}
-				//z
-				else if(event.keyCode == 88){
-					scene.camera.d += 10;
-					drawScene();
-				}
-				// x
-				else if(event.keyCode == 90){
-					scene.camera.d -= 10;
-					drawScene();
-				}
-			});
-		</script> 
+    var processKeyDown = function (event) {
+        var step = 5;
 
-		<div class="center">
-			<canvas id="myCanvas" width="800" height="600"
-				style="border:1px solid #000000;">
-			</canvas> 
-		</div>
-	</body>
+        // w
+        if (event.keyCode == 87) {
+            scene.camera.z += step * Math.cos(scene.camera.angleY);
+            scene.camera.x += step * Math.sin(scene.camera.angleY);
+            drawScene();
+        }
+        // s
+        else if (event.keyCode == 83) {
+            scene.camera.z -= step * Math.cos(scene.camera.angleY);
+            scene.camera.x -= step * Math.sin(scene.camera.angleY);
+            drawScene();
+        }
+        // d
+        else if (event.keyCode == 68) {
+            scene.camera.x += step * Math.cos(scene.camera.angleY);
+            scene.camera.z -= step * Math.sin(scene.camera.angleY);
+            drawScene();
+        }
+        // a
+        else if (event.keyCode == 65) {
+            scene.camera.x -= step * Math.cos(scene.camera.angleY);
+            scene.camera.z += step * Math.sin(scene.camera.angleY);
+            drawScene();
+        }
+        // e
+        else if (event.keyCode == 69) {
+            scene.camera.y += 10;
+            drawScene();
+        }
+        // q
+        else if (event.keyCode == 81) {
+            scene.camera.y -= 10;
+            drawScene();
+        }
+        //z
+        else if (event.keyCode == 88) {
+            scene.camera.zoom += 10;
+            drawScene();
+        }
+        // x
+        else if (event.keyCode == 90) {
+            scene.camera.zoom -= 10;
+            drawScene();
+        }
+    };
+
+    var registerMouseWheelEvent = function () {
+        var mouseWheel = (/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll" : "mousewheel";
+
+        if (document.attachEvent) //if IE (and Opera depending on user setting)
+            document.attachEvent("on" + mouseWheel, processMouseWheel);
+        else if (document.addEventListener) //WC3 browsers
+            document.addEventListener(mouseWheel, processMouseWheel, false);
+    };
+
+    var registerKeyDownEvent = function () {
+        document.addEventListener('keydown', processKeyDown);
+    };
+
+    var registerMouseMoveEvent = function () {
+        document.addEventListener("mousemove", processMouseMove);
+    };
+
+    var registerMouseDownEvent = function () {
+        document.addEventListener("mousedown", function (event) {
+            if (event.button == 0) mouseContext.leftPressed = true;
+            if (event.button == 2) mouseContext.rightPressed = true;
+
+            mouseContext.mouseX = 0;
+            mouseContext.mouseY = 0;
+        });
+    };
+
+    var registerMouseUpEvent = function () {
+        document.addEventListener("mouseup", function () {
+            mouseContext.leftPressed = false;
+            mouseContext.rightPressed = false;
+        });
+    };
+
+    var registerOnLoadEvent = function () {
+        window.onload = function () {
+            scene = initialize3DScene("myCanvas");
+            scene.hideContextMenu();
+
+            var cam = scene.camera;
+            cam.angleX = -0.4049163864626849;
+            cam.angleY = 0.9005898940290745;
+            cam.zoom = -400;
+
+            pageLoaded = true;
+            drawScene();
+        };
+    };
+
+    registerOnLoadEvent();
+    registerKeyDownEvent();
+    registerMouseDownEvent();
+    registerMouseUpEvent();
+    registerMouseWheelEvent();
+    registerMouseMoveEvent();
+</script>
+
+<div class="center">
+    <canvas id="myCanvas" width="800" height="600"
+            style="border:1px solid #000000;">
+    </canvas>
+</div>
+</body>
 </html>
