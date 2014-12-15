@@ -49,30 +49,33 @@ function initialize3DScene(canvasId) {
         }
 
         // angleY property
-        this.__defineGetter__("angleY", function () {
-            return angleY;
-        });
-        this.__defineSetter__("angleY", function (val) {
-            angleY = val;
-            updateCosSinData();
+        Object.defineProperty(this, "angleY", {
+            "get": function () {
+                return angleY;
+            }, "set": function (val) {
+                angleY = val;
+                updateCosSinData();
+            }
         });
 
         // angleX property
-        this.__defineGetter__("angleX", function () {
-            return angleX;
-        });
-        this.__defineSetter__("angleX", function (val) {
-            angleX = val;
-            updateCosSinData();
+        Object.defineProperty(this, "angleX", {
+            "get": function () {
+                return angleX;
+            }, "set": function (val) {
+                angleX = val;
+                updateCosSinData();
+            }
         });
 
         //angleZ property
-        this.__defineGetter__("angleZ", function () {
-            return angleZ;
-        });
-        this.__defineSetter__("angleZ", function (val) {
-            angleZ = val;
-            updateCosSinData();
+        Object.defineProperty(this, "angleZ", {
+            "get": function () {
+                return angleZ;
+            }, "set": function (val) {
+                angleZ = val;
+                updateCosSinData();
+            }
         });
     };
 
@@ -86,7 +89,7 @@ function initialize3DScene(canvasId) {
     var knownColors = []; // Buffer of used colors
     var pixelCaptureMode = false;
 
-    function convertSimpleColorToArgbColor(color){
+    function convertSimpleColorToArgbColor(color) {
         var argbColor = {r: 255, g: 255, b: 255, a: 255};
         var lowerCaseColor = color.toLowerCase();
         if (typeof knownColors[lowerCaseColor] != 'undefined')
@@ -116,7 +119,7 @@ function initialize3DScene(canvasId) {
             || finalY < 0 || finalY + pixelHeight >= canvas.height)return;
 
         // Simplest way to put pixel immediately
-        if (!pixelCaptureMode){
+        if (!pixelCaptureMode) {
             var previousStyle = context.fillStyle;
 
             context.fillStyle = color;
@@ -269,7 +272,7 @@ function initialize3DScene(canvasId) {
         clearScreen: function () {
             context.clearRect(0, 0, canvas.width, canvas.height);
         },
-        startPixelsCapture: function(){
+        startPixelsCapture: function () {
             pixelCaptureMode = true;
             canvasData = context.getImageData(0, 0, canvas.width, canvas.height);
         },
