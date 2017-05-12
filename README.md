@@ -9,8 +9,9 @@ Basic 3D schema can be found [here][1]:
 
 `Sin(x) * Cos(y) = z` 3D graph is [here][2]:
 
-![alt_text](https://github.com/dyatchenko/Native_3D_Graphics/blob/master/Javascript_3D_Graphics/graph_sin_cos_sample.png)
-
+<p align="center">
+  <img src="https://github.com/dyatchenko/Native_3D_Graphics/blob/master/Javascript_3D_Graphics/graph_sin_cos_sample.pnge" style="width: 50%; height: 50%"/>
+</p>
 
   [1]: https://rawgit.com/dyatchenko/Native_3D_Graphics/master/Javascript_3D_Graphics/index.html
   [2]: https://rawgit.com/dyatchenko/Native_3D_Graphics/master/Javascript_3D_Graphics/graph_sin_cos.html
