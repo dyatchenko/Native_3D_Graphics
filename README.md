@@ -1,4 +1,4 @@
-Native_3D_Graphics
+Native 3D Graphics on pure JavaScript
 ==================
 
 Only native 3D graphics! Say NO to OpenGL, DirectX and WebGl!
