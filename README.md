@@ -9,7 +9,8 @@ Basic 3D schema can be found [here][1]:
 
 `Sin(x) * Cos(y) = z` 3D graph is [here][2]:
 
-![alt_text](https://gyazo.com/1e80d78194a5afd5779aa0e9016fe19b)
+
+  <img src="https://github.com/dyatchenko/Native_3D_Graphics/blob/master/Javascript_3D_Graphics/graph_sin_cos_sample.png" style="max-width: 10px; max-height: 10px; display: inline-block;"/>
 
 
   [1]: https://rawgit.com/dyatchenko/Native_3D_Graphics/master/Javascript_3D_Graphics/index.html
