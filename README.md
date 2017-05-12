@@ -5,7 +5,7 @@ Only native 3D graphics! Say NO to OpenGL, DirectX and WebGl!
 
 `Sin(x) * Cos(y) = z` 3D graph is [here][2]:
 
-![alt text](https://github.com/dyatchenko/Native_3D_Graphics/blob/master/Javascript_3D_Graphics/graph_sin_cos_sample.png)
+![alt text](https://github.com/dyatchenko/Native_3D_Graphics/blob/master/Javascript_3D_Graphics/graph_sin_cos_sample.gif)
 
 Basic 3D schema can be found [here][1]:
 
