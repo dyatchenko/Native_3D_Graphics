@@ -11,5 +11,5 @@ Basic 3D schema can be found [here][1]:
 
 ![alt text](https://github.com/dyatchenko/Native_3D_Graphics/blob/master/Javascript_3D_Graphics/index_sample.png)
 
-  [1]: https://htmlpreview.github.io/?https://github.com/dyatchenko/Native_3D_Graphics/master/Javascript_3D_Graphics/index.html
-  [2]: https://htmlpreview.github.io/?https://github.com/dyatchenko/Native_3D_Graphics/master/Javascript_3D_Graphics/graph_sin_cos.html
+  [1]: https://dyatchenko.github.io/Native_3D_Graphics/Javascript_3D_Graphics/index.html
+  [2]: https://dyatchenko.github.io/Native_3D_Graphics/Javascript_3D_Graphics/graph_sin_cos.html
