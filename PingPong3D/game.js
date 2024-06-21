@@ -3,6 +3,7 @@ let playerPaddle, computerPaddle, ball, plane, borders;
 let playerSpeed = 0, ballSpeed = new THREE.Vector3(0.05, 0.05, 0);
 let playerScore = 0, computerScore = 0;
 const scoreElement = document.getElementById('score');
+let touchStartY = 0;
 
 init();
 animate();
@@ -86,6 +87,10 @@ function init() {
     document.addEventListener('keydown', onDocumentKeyDown, false);
     document.addEventListener('keyup', onDocumentKeyUp, false);
     window.addEventListener('resize', onWindowResize, false);
+
+    // Touch event listeners for mobile support
+    document.addEventListener('touchstart', onTouchStart, false);
+    document.addEventListener('touchmove', onTouchMove, false);
 }
 
 function onDocumentKeyDown(event) {
@@ -112,6 +117,20 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function onTouchStart(event) {
+    touchStartY = event.touches[0].clientY;
+}
+
+function onTouchMove(event) {
+    const touchY = event.touches[0].clientY;
+    const deltaY = touchY - touchStartY;
+    touchStartY = touchY;
+
+    playerPaddle.position.y += deltaY * 0.01; // Adjust the multiplier for sensitivity
+    if (playerPaddle.position.y > 2.1) playerPaddle.position.y = 2.1;
+    if (playerPaddle.position.y < -2.1) playerPaddle.position.y = -2.1;
 }
 
 function updateScore() {
