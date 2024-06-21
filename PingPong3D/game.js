@@ -3,11 +3,24 @@ let playerPaddle, computerPaddle, ball, plane, borders;
 let playerSpeed = 0, ballSpeed = new THREE.Vector3(0.05, 0.05, 0);
 let playerScore = 0, computerScore = 0;
 const scoreElement = document.getElementById('score');
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
+let buttonUp, buttonDown, buttonUpText, buttonDownText;
+let fontLoader = new THREE.FontLoader();
+let gsapScriptLoaded = false;
 
 init();
 animate();
 
 function init() {
+    // Load GSAP for animations
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js';
+    script.onload = () => {
+        gsapScriptLoaded = true;
+    };
+    document.head.appendChild(script);
+
     // Scene
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
@@ -27,6 +40,7 @@ function init() {
     const ballTexture = textureLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
     const backgroundTexture = textureLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
     const borderTexture = textureLoader.load('https://threejs.org/examples/textures/brick_diffuse.jpg');
+    const buttonTexture = textureLoader.load('https://threejs.org/examples/textures/terrain/grasslight-big.jpg');
 
     // Player Paddle
     let geometry = new THREE.BoxGeometry(0.2, 1, 0.2);
@@ -82,22 +96,47 @@ function init() {
 
     scene.add(borders);
 
+    // Add 3D buttons
+    const buttonGeometry = new THREE.BoxGeometry(1, 0.5, 0.1);
+    const buttonMaterial = new THREE.MeshBasicMaterial({ map: buttonTexture });
+
+    buttonUp = new THREE.Mesh(buttonGeometry, buttonMaterial);
+    buttonUp.position.set(-1, -2.5, 0.5);
+    scene.add(buttonUp);
+
+    buttonDown = new THREE.Mesh(buttonGeometry, buttonMaterial);
+    buttonDown.position.set(1, -2.5, 0.5);
+    scene.add(buttonDown);
+
+    // Load font and add text to buttons
+    fontLoader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+        const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+        const upTextGeometry = new THREE.TextGeometry('Up', {
+            font: font,
+            size: 0.2,
+            height: 0.05,
+        });
+        buttonUpText = new THREE.Mesh(upTextGeometry, textMaterial);
+        buttonUpText.position.set(-1.3, -2.5, 0.6);
+        scene.add(buttonUpText);
+
+        const downTextGeometry = new THREE.TextGeometry('Down', {
+            font: font,
+            size: 0.2,
+            height: 0.05,
+        });
+        buttonDownText = new THREE.Mesh(downTextGeometry, textMaterial);
+        buttonDownText.position.set(0.7, -2.5, 0.6);
+        scene.add(buttonDownText);
+    });
+
     // Event listeners
     document.addEventListener('keydown', onDocumentKeyDown, false);
     document.addEventListener('keyup', onDocumentKeyUp, false);
     window.addEventListener('resize', onWindowResize, false);
-
-    // Button event listeners for mobile support
-    document.getElementById('buttonUp').addEventListener('mousedown', () => playerSpeed = 0.1);
-    document.getElementById('buttonUp').addEventListener('mouseup', () => playerSpeed = 0);
-    document.getElementById('buttonDown').addEventListener('mousedown', () => playerSpeed = -0.1);
-    document.getElementById('buttonDown').addEventListener('mouseup', () => playerSpeed = 0);
-
-    // Add touch support for buttons (for mobile devices)
-    document.getElementById('buttonUp').addEventListener('touchstart', () => playerSpeed = 0.1);
-    document.getElementById('buttonUp').addEventListener('touchend', () => playerSpeed = 0);
-    document.getElementById('buttonDown').addEventListener('touchstart', () => playerSpeed = -0.1);
-    document.getElementById('buttonDown').addEventListener('touchend', () => playerSpeed = 0);
+    document.addEventListener('mousedown', onMouseDown, false);
+    document.addEventListener('touchstart', onTouchStart, false);
 }
 
 function onDocumentKeyDown(event) {
@@ -124,6 +163,48 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function onMouseDown(event) {
+    event.preventDefault();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects([buttonUp, buttonDown]);
+
+    if (intersects.length > 0) {
+        handleButtonClick(intersects[0].object);
+    }
+}
+
+function onTouchStart(event) {
+    event.preventDefault();
+    mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.touches[0].clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects([buttonUp, buttonDown]);
+
+    if (intersects.length > 0) {
+        handleButtonClick(intersects[0].object);
+    }
+}
+
+function handleButtonClick(button) {
+    if (button === buttonUp) {
+        playerSpeed = 0.1;
+        if (gsapScriptLoaded) {
+            gsap.to(buttonUp.scale, { duration: 0.2, x: 1.2, y: 1.2, z: 1.2 });
+            gsap.to(buttonUp.scale, { duration: 0.2, x: 1, y: 1, z: 1, delay: 0.2 });
+        }
+    } else if (button === buttonDown) {
+        playerSpeed = -0.1;
+        if (gsapScriptLoaded) {
+            gsap.to(buttonDown.scale, { duration: 0.2, x: 1.2, y: 1.2, z: 1.2 });
+            gsap.to(buttonDown.scale, { duration: 0.2, x: 1, y: 1, z: 1, delay: 0.2 });
+        }
+    }
 }
 
 function updateScore() {

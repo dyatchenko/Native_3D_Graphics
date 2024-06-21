@@ -29,31 +29,11 @@
             font-family: Arial, sans-serif;
             font-size: 24px;
         }
-        .control-buttons {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-        }
-        .control-button {
-            background-color: #fff;
-            border: none;
-            padding: 10px 20px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
-    <div id="info">Use W/S to move your paddle or the buttons below on mobile</div>
+    <div id="info">Use W/S to move your paddle or click the buttons below on mobile</div>
     <div id="score">0 - 0</div>
-    <div class="control-buttons">
-        <button class="control-button" id="buttonUp">Up</button>
-        <button class="control-button" id="buttonDown">Down</button>
-    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="game.js"></script>
 </body>
