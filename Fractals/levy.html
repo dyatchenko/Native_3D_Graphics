@@ -1,0 +1,90 @@
+<html>
+<title>Levy's Fractal</title>
+<head>
+    <style>
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+            width: 800;
+        }
+    </style>
+</head>
+<body>
+<div class="center">
+    <button id="drawButton">Level</button>
+    <span id="counter">0</span>
+    <canvas id="myCanvas" width="800" height="600"
+            style="border:1px solid #000000;">
+    </canvas>    
+</div>
+<script>
+ // Get the canvas element
+ const canvas = document.getElementById('myCanvas');
+ const ctx = canvas.getContext('2d');
+
+ // Initialize the counter
+ let counter = 0;
+
+ // Function to clear the canvas
+ function clearCanvas() {
+     ctx.clearRect(0, 0, canvas.width, canvas.height);
+ }
+
+ // Function to draw a line with parameters
+ function drawLine(startX, startY, endX, endY) {         
+
+     // Begin a new path
+     ctx.beginPath();
+
+     // Move the drawing cursor to the starting point
+     ctx.moveTo(startX, startY);
+
+     // Draw a line to the end point
+     ctx.lineTo(endX, endY);
+     
+     ctx.stroke();
+ }
+ 
+ function levy(x1, y1, x2, y2, level) 
+ {
+    if (level > counter)
+        return;
+        
+    var angle = Math.PI * 1/3 + Math.atan((y1 - y2)/(x1-x2));
+    var d = Math.sqrt((y1 - y2)*(y1 - y2) + (x1-x2)*(x1-x2))/2;
+    
+    //alert(angle);
+    //alert(d);
+    
+    var x3 = x1 + d * Math.cos(angle);
+    var y3 = y1 + d * Math.sin(angle);
+    
+    if (level === counter)
+    {    
+        drawLine(x1, y1, x3, y3);
+        drawLine(x2, y2, x3, y3);
+    }
+    
+    levy(x1, y1, x3, y3, level + 1);
+    levy(x2, y2, x3, y3, level + 1);
+ }
+
+ // Function to update the counter and draw the line
+ function updateAndDraw() {
+     
+     // Update the counter display
+     document.getElementById('counter').textContent = counter;
+
+     // Draw the line with updated coordinates
+     clearCanvas();
+     levy(canvas.width/2 - 30, canvas.height/2, canvas.width/2 + 30, canvas.height/2, 0);
+     
+     // Increment the counter
+     counter++;
+ }
+
+ // Add an event listener to the button
+ document.getElementById('drawButton').addEventListener('click', updateAndDraw);
+</script>
+</body>
+</html>
